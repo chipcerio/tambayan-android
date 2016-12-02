@@ -1,14 +1,18 @@
 package com.chipcerio.tambayan.category;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.chipcerio.tambayan.R;
+import com.chipcerio.tambayan.add.AddActivity;
 import com.chipcerio.tambayan.model.pojo.Event;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -22,6 +26,8 @@ import com.google.firebase.database.Query;
 
 public class CategoryActivity extends AppCompatActivity implements AuthStateListener {
 
+    public static final String EXTRA_CATEGORY = "extra:category";
+
     private RecyclerView mEvents;
 
     private FirebaseAuth mAuth;
@@ -30,10 +36,19 @@ public class CategoryActivity extends AppCompatActivity implements AuthStateList
 
     private DatabaseReference mEventsRef;
 
+    private String mSelected;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
+
+        mSelected = getIntent().getStringExtra(EXTRA_CATEGORY);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(mSelected);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(this);
@@ -74,8 +89,32 @@ public class CategoryActivity extends AppCompatActivity implements AuthStateList
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+
+            case R.id.action_add:
+                Intent intent = new Intent(this, AddActivity.class);
+                startActivity(intent);
+                break;
+
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void attachRecyclerViewAdapter() {
-        Query query = mEventsRef.limitToLast(20);
+        Query query = mEventsRef.orderByChild("type").equalTo(mSelected);
         mAdapter = new FirebaseRecyclerAdapter<Event, EventsHolder>(
                 Event.class,
                 android.R.layout.simple_list_item_1,
@@ -108,7 +147,6 @@ public class CategoryActivity extends AppCompatActivity implements AuthStateList
 
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
     }
 
     public static class EventsHolder extends RecyclerView.ViewHolder {

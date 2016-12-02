@@ -82,7 +82,7 @@ public class CategoryListActivity extends AppCompatActivity implements AuthState
     }
 
     private void attachRecyclerViewAdapter() {
-        Query query = mCategoriesRef.limitToLast(20);
+        Query query = mCategoriesRef.orderByValue();
         mAdapter = new FirebaseRecyclerAdapter<String, CategoriesHolder>(
                 String.class,
                 android.R.layout.simple_list_item_1,
@@ -134,6 +134,7 @@ public class CategoryListActivity extends AppCompatActivity implements AuthState
                 public void onClick(View view) {
                     Log.d(TAG, "CategoriesHolder.onClick: " + text);
                     Intent intent = new Intent(view.getContext(), CategoryActivity.class);
+                    intent.putExtra(CategoryActivity.EXTRA_CATEGORY, text);
                     view.getContext().startActivity(intent);
                 }
             });

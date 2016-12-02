@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -55,17 +56,16 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
 
     private Map<String, String> categories;
     private List<String> listCategories = new ArrayList<>();
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Add Event");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         mTitle = (EditText) findViewById(R.id.editTextTitle);
         mDesc = (EditText) findViewById(R.id.editTextDesc);
@@ -86,9 +86,6 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
                 showDialog(listCategories);
             }
         });
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     private void getCategories() {
@@ -111,6 +108,7 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
     }
 
     private AlertDialog dialog;
+    private String selectedCategory;
 
     private void showDialog(List<String> list) {
         if (list.isEmpty()) {
@@ -127,22 +125,24 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
                         android.R.layout.simple_list_item_single_choice,
                         new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogIntf, int which) {
+                            public void onClick(DialogInterface d, int which) {
                                 String item = (String) dialog.getListView().getAdapter().getItem(which);
                                 Log.d(TAG, "which:" + which + " item:" + item);
+                                selectedCategory = item;
                             }
                         }
                 )
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogIntf, int which) {
-
+                    public void onClick(DialogInterface d, int which) {
+                        mCategory.setText(selectedCategory);
+                        d.dismiss();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogIntf, int which) {
-
+                    public void onClick(DialogInterface d, int which) {
+                        d.dismiss();
                     }
                 })
                 .create();
@@ -170,7 +170,7 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
         event.setDescription(desc);
         event.setDate(datetime);
         event.setImage(imgUrl);
-        event.setCategory(category);
+        event.setCategory(selectedCategory);
 
         mRootRef.child("events").push().setValue(event).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -205,26 +205,29 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
 
     @Override
     protected void onStart() {
-        super.onStart();// ATTENTION: This was auto-generated to implement the App Indexing API.
-// See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
+        super.onStart();
         mAuth.addAuthStateListener(this);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
 
     @Override
     protected void onStop() {
-        super.onStop();// ATTENTION: This was auto-generated to implement the App Indexing API.
-// See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        super.onStop();
         if (mAuth != null) {
             mAuth.removeAuthStateListener(this);
         }
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.disconnect();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -239,19 +242,4 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
         }
     }
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("Add Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new Action.Builder(Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-                .build();
-    }
 }

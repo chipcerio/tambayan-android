@@ -1,19 +1,17 @@
 package com.chipcerio.tambayan.login;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.chipcerio.tambayan.R;
 import com.chipcerio.tambayan.TambayanApplication;
-import com.chipcerio.tambayan.add.AddActivity;
 import com.chipcerio.tambayan.categorylist.CategoryListActivity;
 import com.chipcerio.tambayan.model.pojo.User;
-import com.chipcerio.tambayan.view.activity.MainActivity;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -172,8 +170,7 @@ public class LoginActivity extends AppCompatActivity implements LoginView, OnCon
 
     @Override
     public void startMainActivity(String userJson) {
-//        Intent intent = new Intent(this, CategoryListActivity.class);
-        Intent intent = new Intent(this, AddActivity.class);
+        Intent intent = new Intent(this, CategoryListActivity.class);
         intent.putExtra(EXTRA_FIREBASE_USER_JSON, userJson);
         startActivity(intent);
     }
