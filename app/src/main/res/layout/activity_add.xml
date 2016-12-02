@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_add"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.chipcerio.tambayan.add.AddActivity">
+
+    <Button
+        android:text="Add"
+        android:layout_width="wrap_content"
+        android:layout_height="52dp"
+        android:layout_alignParentBottom="true"
+        android:onClick="onAddClick"
+        android:id="@+id/button_add"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:layout_alignParentTop="true"
+        android:id="@+id/editTextTitle"
+        android:hint="Title"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:layout_below="@+id/editTextTitle"
+        android:layout_alignStart="@+id/editTextTitle"
+        android:id="@+id/editTextDesc"
+        android:hint="Description"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:layout_below="@+id/editTextDesc"
+        android:layout_alignParentStart="true"
+        android:id="@+id/editTextLoc"
+        android:layout_alignParentEnd="true"
+        android:hint="Location" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:layout_below="@+id/editTextLoc"
+        android:layout_alignParentStart="true"
+        android:id="@+id/editTextPrice"
+        android:layout_alignParentEnd="true"
+        android:hint="Price" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:layout_below="@+id/editTextPrice"
+        android:layout_alignParentStart="true"
+        android:id="@+id/editTextDateTime"
+        android:layout_alignParentEnd="true"
+        android:hint="MM/DD/YY HH:MM" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:layout_below="@+id/editTextDateTime"
+        android:layout_alignParentStart="true"
+        android:id="@+id/editTextImageUrl"
+        android:layout_alignParentEnd="true"
+        android:hint="Image URL" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:layout_below="@+id/editTextImageUrl"
+        android:layout_alignParentStart="true"
+        android:id="@+id/buttonCategory"
+        android:layout_alignParentEnd="true"
+        android:text="Category" />
+
+</RelativeLayout>

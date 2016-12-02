@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "924755194689",
+    "firebase_url": "https://tambayan-ios-rey.firebaseio.com",
+    "project_id": "tambayan-ios-rey",
+    "storage_bucket": "tambayan-ios-rey.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924755194689:android:9828b42597453eab",
+        "android_client_info": {
+          "package_name": "com.chipcerio.tambayan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "924755194689-vc24o0nlu545vsq7t3bdl8emp2cf798m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chipcerio.tambayan",
+            "certificate_hash": "9CCE7AD16CB1A3EBA5C8EEA62721302F8EA6ABB7"
+          }
+        },
+        {
+          "client_id": "924755194689-5prebfp2rjrecj7cghlq451p3ovmu9d8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBigoEFP6P3WENI3Mj_8hTy8hmPeuyQw4o"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "924755194689-5prebfp2rjrecj7cghlq451p3ovmu9d8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "924755194689-99l479v75nulocftkcg1qhtnffuoo4sd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "CeriOS.Tambayan2"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
