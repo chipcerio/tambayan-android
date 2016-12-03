@@ -7,10 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.chipcerio.tambayan.R;
+import com.chipcerio.tambayan.add.AddActivity;
 import com.chipcerio.tambayan.category.CategoryActivity;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -79,6 +82,26 @@ public class CategoryListActivity extends AppCompatActivity implements AuthState
         if (mAuth != null) {
             mAuth.removeAuthStateListener(this);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add:
+                Intent intent = new Intent(this, AddActivity.class);
+                startActivity(intent);
+                break;
+
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void attachRecyclerViewAdapter() {

@@ -90,21 +90,10 @@ public class CategoryActivity extends AppCompatActivity implements AuthStateList
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-                break;
-
-            case R.id.action_add:
-                Intent intent = new Intent(this, AddActivity.class);
-                startActivity(intent);
                 break;
 
             default:

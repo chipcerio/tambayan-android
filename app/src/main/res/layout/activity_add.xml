@@ -75,23 +75,23 @@
         android:layout_alignParentEnd="true"
         android:hint="MM/DD/YY HH:MM" />
 
-    <EditText
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
         android:layout_below="@+id/editTextDateTime"
         android:layout_alignParentStart="true"
-        android:id="@+id/editTextImageUrl"
+        android:id="@+id/buttonSelectImage"
         android:layout_alignParentEnd="true"
-        android:hint="Image URL" />
+        android:text="Select Image" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
-        android:layout_below="@+id/editTextImageUrl"
+        android:layout_below="@+id/buttonSelectImage"
         android:layout_alignParentStart="true"
         android:id="@+id/buttonCategory"
         android:layout_alignParentEnd="true"

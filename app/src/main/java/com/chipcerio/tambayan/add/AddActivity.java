@@ -1,7 +1,6 @@
 package com.chipcerio.tambayan.add;
 
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,12 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.chipcerio.tambayan.R;
-import com.chipcerio.tambayan.model.pojo.Category;
 import com.chipcerio.tambayan.model.pojo.Event;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,11 +24,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class AddActivity extends AppCompatActivity implements AuthStateListener {
 
@@ -46,14 +41,18 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
 
     private DatabaseReference mRootRef;
 
+    private FirebaseStorage mStorage;
+
+    private StorageReference mStorageRef;
+
     private EditText mTitle;
     private EditText mDesc;
     private EditText mLoc;
     private EditText mPrice;
     private EditText mDateTime;
-    private EditText mImageUrl;
-    private Button mCategory;
+    private Button mSelectImage;
 
+    private Button mSelectCategory;
     private Map<String, String> categories;
     private List<String> listCategories = new ArrayList<>();
 
@@ -72,20 +71,30 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
         mLoc = (EditText) findViewById(R.id.editTextLoc);
         mPrice = (EditText) findViewById(R.id.editTextPrice);
         mDateTime = (EditText) findViewById(R.id.editTextDateTime);
-        mImageUrl = (EditText) findViewById(R.id.editTextImageUrl);
-        mCategory = (Button) findViewById(R.id.buttonCategory);
+        mSelectImage = (Button) findViewById(R.id.buttonSelectImage);
+        mSelectCategory = (Button) findViewById(R.id.buttonCategory);
 
         mAuth = FirebaseAuth.getInstance();
 
         mRootRef = FirebaseDatabase.getInstance().getReference();
 
+        mSelectImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
+
         getCategories();
-        mCategory.setOnClickListener(new View.OnClickListener() {
+        mSelectCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showDialog(listCategories);
             }
         });
+
+        mStorage = FirebaseStorage.getInstance();
+        mStorageRef = mStorage.getReferenceFromUrl("gs://tambayan-ios-rey.appspot.com/eventImage/");
+        // gs://tambayan-ios-rey.appspot.com/eventImage/
     }
 
     private void getCategories() {
@@ -135,7 +144,7 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface d, int which) {
-                        mCategory.setText(selectedCategory);
+                        mSelectCategory.setText(selectedCategory);
                         d.dismiss();
                     }
                 })
@@ -159,9 +168,8 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener 
         String price = "250PHP";
         mPrice.getText().toString();
         String datetime = String.valueOf(System.currentTimeMillis());
-        String imgUrl = "http://i.imgur.com/SRwSHaH.jpg";
-        String category = "Outdoor";
-        mCategory.getText().toString();
+        String imgUrl = "http://i.imgur.com/SRwSHaH.jpg"; // TODO selected image from sdcard
+        mSelectCategory.getText().toString();
 
         Event event = new Event();
         event.setTitle(title);
