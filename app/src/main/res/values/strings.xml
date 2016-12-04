@@ -25,5 +25,7 @@
     <string name="transition_image">transition:eventImage</string>
     <string name="web_client_id">924755194689-5prebfp2rjrecj7cghlq451p3ovmu9d8.apps.googleusercontent.com</string>
     <string name="add">Add</string>
+    <string name="rationale_read_storage">This app needs access to your camera so you can take pictures.</string>
+    <string name="returned_from_app_settings_to_activity">Returned from app settings to Activity</string>
 
 </resources>

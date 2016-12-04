@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.chipcerio.tambayan">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <application
         android:name=".TambayanApplication"
         android:allowBackup="false"
@@ -22,8 +24,7 @@
         <activity android:name=".categorylist.CategoryListActivity" />
         <activity android:name=".category.CategoryActivity" />
         <activity android:name=".details.EventDetailsActivity" />
-        <activity android:name=".add.AddActivity" /><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <activity android:name=".add.AddActivity" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
