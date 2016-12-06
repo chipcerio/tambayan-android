@@ -15,7 +15,6 @@
         android:layout_width="wrap_content"
         android:layout_height="52dp"
         android:layout_alignParentBottom="true"
-        android:onClick="onAddClick"
         android:id="@+id/button_add"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true" />
@@ -86,15 +85,28 @@
         android:layout_alignParentEnd="true"
         android:text="Select Image" />
 
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_below="@+id/buttonSelectImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-12dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        android:id="@+id/progressBar2" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
-        android:layout_below="@+id/buttonSelectImage"
+        android:layout_below="@+id/progressBar2"
         android:layout_alignParentStart="true"
-        android:id="@+id/buttonCategory"
         android:layout_alignParentEnd="true"
+        android:id="@+id/buttonCategory"
         android:text="Category" />
 
 </RelativeLayout>

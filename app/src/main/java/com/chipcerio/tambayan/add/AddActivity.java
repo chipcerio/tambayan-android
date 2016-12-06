@@ -14,8 +14,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.chipcerio.tambayan.R;
@@ -41,20 +43,25 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks;
 
-public class AddActivity extends AppCompatActivity implements AuthStateListener, PermissionCallbacks {
+public class AddActivity extends AppCompatActivity
+        implements AuthStateListener, PermissionCallbacks, OnClickListener {
 
     private static final String TAG = "AddActivity";
 
-    private static final int RC_DISK_PERM = 100;
+    private static final int RC_RW_DISK_PERM = 100;
 
     private static final int RC_SETTINGS_SCREEN = 101;
 
@@ -74,11 +81,12 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
     private EditText mLoc;
     private EditText mPrice;
     private EditText mDateTime;
-
     private Button mSelectImage;
+    private ProgressBar mProgress;
     private Button mSelectCategory;
-    private Map<String, String> categories;
+    private Button mAdd;
 
+    private Map<String, String> categories;
     private List<String> listCategories = new ArrayList<>();
     private AlertDialog dialog;
     private String selectedCategory;
@@ -100,7 +108,10 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
         mPrice = (EditText) findViewById(R.id.editTextPrice);
         mDateTime = (EditText) findViewById(R.id.editTextDateTime);
         mSelectImage = (Button) findViewById(R.id.buttonSelectImage);
+        mProgress = (ProgressBar) findViewById(R.id.progressBar2);
         mSelectCategory = (Button) findViewById(R.id.buttonCategory);
+        mAdd = (Button) findViewById(R.id.button_add);
+        mAdd.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -109,7 +120,7 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
         mSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                readDiskTask();
+                readWriteDiskTask();
             }
         });
 
@@ -138,8 +149,9 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
                 if (resultCode == RESULT_OK) {
                     Uri imageUri = data.getData();
                     String path = getAbsolutePathFromUri(imageUri);
-                    uploadImage(path);
-                    mSelectImage.setText(path);
+                    // http://stackoverflow.com/a/9293885/1076574
+                    String newFile = copyFile(path);
+                    uploadImage(newFile);
                 }
                 break;
 
@@ -148,10 +160,41 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
         }
     }
 
+    private String copyFile(String path) {
+        File srcFile = new File(path);
+        String f = srcFile.getParent() + "/" + UUID.randomUUID().toString() + ".jpg";
+        File desFile = new File(f);
+
+        try {
+            InputStream in = new FileInputStream(srcFile);
+            OutputStream out = new FileOutputStream(desFile);
+
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return f;
+    }
+
     private void uploadImage(String path) {
+        mProgress.setVisibility(View.VISIBLE);
+        mAdd.setEnabled(false);
+
         // File or Blob
-        File file = new File(path);
+        final File file = new File(path);
         Uri uri = Uri.fromFile(file);
+
+        if (!file.exists()) {
+            return;
+        }
 
         // Create the file metadata
         StorageMetadata metadata = new StorageMetadata.Builder()
@@ -164,22 +207,31 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
             UploadTask uploadTask = mStorageRef.child("images/" + uri.getLastPathSegment()).putStream(stream, metadata);
 
             // Listen for state changes, errors, and completion of the upload.
-            uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            uploadTask.addOnProgressListener(this, new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                     System.out.println("Upload is " + progress + "% done");
                 }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            }).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Uri downloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
                     Log.d(TAG, "UploadTask.onSuccess:" + downloadUrl.getPath());
+                    mProgress.setVisibility(View.GONE);
+                    mAdd.setEnabled(true);
+                    mSelectImage.setText(file.getName()); // this may fail though i'm not sure
+                    boolean delete = file.delete();
+                    Log.d(TAG, "UploadTask.onSuccess:file deleted = " + delete);
                 }
-            }).addOnFailureListener(new OnFailureListener() {
+            }).addOnFailureListener(this, new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Log.e(TAG, "UploadTask.onFailure:" + e.getMessage());
+                    mProgress.setVisibility(View.GONE);
+                    mSelectImage.setText("Select Image");
+                    Toast.makeText(AddActivity.this, "Upload Failed. Please Try Again.",
+                            Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -215,9 +267,14 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
         return picturePath;
     }
 
-    @AfterPermissionGranted(RC_DISK_PERM)
-    private void readDiskTask() {
-        if (EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+    @AfterPermissionGranted(RC_RW_DISK_PERM)
+    private void readWriteDiskTask() {
+        String[] perms = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+
+        if (EasyPermissions.hasPermissions(this, perms)) {
             Toast.makeText(this, "Has Permission", Toast.LENGTH_LONG).show();
 
             Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -229,7 +286,7 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
         } else {
             // Ask for one permission
             EasyPermissions.requestPermissions(this, getString(R.string.rationale_read_storage),
-                    RC_DISK_PERM, Manifest.permission.READ_EXTERNAL_STORAGE);
+                    RC_RW_DISK_PERM, perms);
         }
     }
 
@@ -307,7 +364,12 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
         dialog.show();
     }
 
-    public void onAddClick(View view) {
+    @Override
+    public void onClick(View view) {
+        onAddClick();
+    }
+
+    public void onAddClick() {
         if (mFirebaseUser == null) return;
 
         String title = "Skateboard";//mTitle.getText().toString();
@@ -333,31 +395,17 @@ public class AddActivity extends AppCompatActivity implements AuthStateListener,
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(AddActivity.this, "Event Successfully Added", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddActivity.this, "Event Successfully Added",
+                            Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "event successfully added");
                 } else {
-                    Toast.makeText(AddActivity.this, "Failed Adding Event", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddActivity.this, "Failed Adding Event",
+                            Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "failed adding event");
                 }
             }
         });
 
-        /*
-        mRootRef.child("events").orderByChild("type").equalTo("Music").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    Event e = d.getValue(Event.class);
-                    Log.d(TAG, "events: " + e.getTitle());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        */
     }
 
     @Override
