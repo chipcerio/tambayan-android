@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_add"
     android:layout_width="match_parent"
@@ -108,5 +109,14 @@
         android:layout_alignParentEnd="true"
         android:id="@+id/buttonCategory"
         android:text="Category" />
+
+    <ImageView
+        android:contentDescription="@null"
+        android:layout_width="match_parent"
+        android:layout_height="98dp"
+        app:srcCompat="@drawable/ic_event_grey600_16dp"
+        android:layout_below="@+id/buttonCategory"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/img_event_selected" />
 
 </RelativeLayout>

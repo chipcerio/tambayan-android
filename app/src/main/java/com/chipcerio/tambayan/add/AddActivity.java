@@ -17,11 +17,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.chipcerio.tambayan.R;
 import com.chipcerio.tambayan.model.pojo.Event;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -90,7 +93,9 @@ public class AddActivity extends AppCompatActivity
     private List<String> listCategories = new ArrayList<>();
     private AlertDialog dialog;
     private String selectedCategory;
-    private StorageReference mImageRef;
+    private String mImageUrl;
+    private Uri mImageUri;
+    private ImageView mImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +117,8 @@ public class AddActivity extends AppCompatActivity
         mSelectCategory = (Button) findViewById(R.id.buttonCategory);
         mAdd = (Button) findViewById(R.id.button_add);
         mAdd.setOnClickListener(this);
+
+        mImageView = (ImageView) findViewById(R.id.img_event_selected);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -216,13 +223,25 @@ public class AddActivity extends AppCompatActivity
             }).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Uri downloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
-                    Log.d(TAG, "UploadTask.onSuccess:" + downloadUrl.getPath());
+                    mImageUri = taskSnapshot.getMetadata().getDownloadUrl();
+                    mImageUrl = taskSnapshot.getMetadata().getPath();
+
                     mProgress.setVisibility(View.GONE);
                     mAdd.setEnabled(true);
+
                     mSelectImage.setText(file.getName()); // this may fail though i'm not sure
                     boolean delete = file.delete();
-                    Log.d(TAG, "UploadTask.onSuccess:file deleted = " + delete);
+                    Log.d(TAG, "UploadTask.onSuccess >> fileDeleted:" + delete);
+
+                    StorageReference imageRef = mStorageRef.child(mImageUrl);
+
+                    Glide.with(AddActivity.this)
+                            .using(new FirebaseImageLoader())
+                            .load(imageRef)
+                            .centerCrop()
+                            .crossFade()
+                            .into(mImageView);
+
                 }
             }).addOnFailureListener(this, new OnFailureListener() {
                 @Override
@@ -275,7 +294,7 @@ public class AddActivity extends AppCompatActivity
         };
 
         if (EasyPermissions.hasPermissions(this, perms)) {
-            Toast.makeText(this, "Has Permission", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Has R/W Disk Permissions", Toast.LENGTH_LONG).show();
 
             Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
             getIntent.setType("image/*");
@@ -372,15 +391,14 @@ public class AddActivity extends AppCompatActivity
     public void onAddClick() {
         if (mFirebaseUser == null) return;
 
-        String title = "Skateboard";//mTitle.getText().toString();
-        String desc = "Biggest Skateboard Event";//mDesc.getText().toString();
-        String location = "Cebu City";
-        mLoc.getText().toString();
-        String price = "250PHP";
-        mPrice.getText().toString();
+        String title = mTitle.getText().toString();
+        String desc = mDesc.getText().toString();
+        String location = mLoc.getText().toString();
+        String price = mPrice.getText().toString();
         String datetime = String.valueOf(System.currentTimeMillis());
-        String imgUrl = "http://i.imgur.com/SRwSHaH.jpg"; // TODO selected image from sdcard
-        mSelectCategory.getText().toString();
+        String imgUrl = mImageUrl;
+        // https://firebasestorage.googleapis.com + mImageUri.getPath();
+        // gs://tambayan-ios-rey.appspot.com  images/b041c719-11da-4147-b228-21c43ded1af5.jpg
 
         Event event = new Event();
         event.setTitle(title);
@@ -389,7 +407,7 @@ public class AddActivity extends AppCompatActivity
         event.setDescription(desc);
         event.setDate(datetime);
         event.setImage(imgUrl);
-        event.setCategory(selectedCategory);
+        event.setType(selectedCategory);
 
         mRootRef.child("events").push().setValue(event).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
